@@ -1,7 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import { Camera } from 'expo-camera';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
+} from 'react-native';
+
+import GestureCaptureView from './containers/GestureCaptureView';
 
 export default function App() {
   const [ hasPermission, setHasPermission ] = useState(null);
@@ -17,16 +24,27 @@ export default function App() {
     })();
   }, []);
 
-  if (hasPermission === null) {
-    return <View />;
+  const gestureViewOnTouchStart = () => {
+    alert('Touched!')
   }
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
+
+  if (hasPermission === null) return (
+    <View style={ styles.container }>
+      <Text style={ styles.text }>Loading Camera...</Text>
+      <ActivityIndicator />
+    </View>
+  );
+  if (hasPermission === false) return (
+    <View style={ styles.container }>
+      <Text style={ styles.text }>Failed to access camera.</Text>
+      <Text style={ styles.text }>Make sure the permission has been granted.</Text>
+    </View>
+  );
   return (
     <View style={ styles.container }>
       <StatusBar style='dark' />
       <Camera style={ styles.camera } type={ Camera.Constants.Type.back }>
+        <GestureCaptureView />
       </Camera>
     </View>
   );
@@ -48,5 +66,8 @@ const styles = StyleSheet.create({
     width: '100%',
     borderColor: 'red',
     borderWidth: 1, 
+  },
+  text: {
+    marginBottom: 8
   }
 });
