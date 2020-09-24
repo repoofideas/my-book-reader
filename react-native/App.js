@@ -24,10 +24,6 @@ export default function App() {
     })();
   }, []);
 
-  const gestureViewOnTouchStart = () => {
-    alert('Touched!')
-  }
-
   if (hasPermission === null) return (
     <View style={ styles.container }>
       <Text style={ styles.text }>Loading Camera...</Text>
@@ -60,12 +56,6 @@ const styles = StyleSheet.create({
   camera: {
     width: '100%',
     flex: 0.85,
-  },
-  gestureView: {
-    height: '100%',
-    width: '100%',
-    borderColor: 'red',
-    borderWidth: 1, 
   },
   text: {
     marginBottom: 8
