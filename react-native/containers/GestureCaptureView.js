@@ -1,41 +1,67 @@
 import React, { useState } from 'react';
 import {
   StyleSheet,
-  View,
   Pressable
 } from 'react-native';
 
 import ToastModal from '../components/ToastModal';
 
 const __TAB_DELAY = 200;
+const __VERTICAL_SWIPE_THRESHOLD = 250;
+const __HORIZONTAL_SWIPE_THRESHOLD = 170;
+const __VERTICAL_DIRECTION = 'ver';
+const __HORIZONTAL_DIRECTION = 'hor';
+const __SPEED_RATE_PER_PIXAL = 1;
 
 export default function App(props) {
   const toastRef = React.createRef();
 
   const [ play, setPlay ] = useState(false);
   const [ lastTapAt, setLastTapAt ] = useState(0);
-  const [ lastTapX, setLastTapX ] = useState(0);
-  const [ lastTapY, setLastTapY ] = useState(0);
   const [ startX, setStartX ] = useState(-1);
   const [ startY, setStartY ] = useState(-1);
+  const [ isTapAndDrag, setTapAndDrag ] = useState(false);
+  const [ direction, setDirection ] = useState(null);
 
   const onTouchStart = event => {
-    if (event.nativeEvent.timestamp - lastTapAt < __TAB_DELAY) {
-      setLastTapX(event.nativeEvent.locationX);
-      setLastTapY(event.nativeEvent.locationY);
-    }
+    setTapAndDrag(event.nativeEvent.timestamp - lastTapAt < __TAB_DELAY);
     setStartX(event.nativeEvent.locationX);
     setStartY(event.nativeEvent.locationY);
+    setDirection(null);
   }
 
   const onTouchEnd = event => {
+    const endX = event.nativeEvent.locationX;
+    const endY = event.nativeEvent.locationY;
+
+    if (!isTapAndDrag) {
+      if (direction === __VERTICAL_DIRECTION && startY - endY >= __VERTICAL_SWIPE_THRESHOLD) {
+        toastRef.current.show('Look up');
+      } else if (direction === __HORIZONTAL_DIRECTION && endX - startX >= __HORIZONTAL_SWIPE_THRESHOLD) {
+        toastRef.current.show('Go Next');
+      } else if (direction === __HORIZONTAL_DIRECTION && startX - endX >= __HORIZONTAL_SWIPE_THRESHOLD) {
+        toastRef.current.show('Go Back');
+      }
+    }
   }
 
   const onTouchMove = event => {
-    if (startX === lastTapX && startY === lastTapY) {
-      console.log('tab and drag');
-    } else {
-      console.log('drag');
+    const movingX = event.nativeEvent.locationX;
+    const movingY = event.nativeEvent.locationY;
+
+    if (direction === null) {
+      setDirection(startX !== event.nativeEvent.locationX ? __HORIZONTAL_DIRECTION : __VERTICAL_DIRECTION);
+    }
+
+    if (isTapAndDrag) {
+      let pixelsFromOriginal = Math.sqrt(Math.pow(movingX - startX, 2) + Math.pow(movingY - startY, 2));
+
+      if (movingX > startX) {
+        console.log('Increase: ', pixelsFromOriginal);
+      } else {
+        console.log('Decrease: ', pixelsFromOriginal);
+      }
+      // console.log('tab and drag');
     }
   }
 
