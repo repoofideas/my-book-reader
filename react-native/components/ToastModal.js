@@ -7,6 +7,8 @@ import {
   View,
 } from 'react-native';
 
+const __AUTO_DISMISS_TIMEOUT = 1000;
+
 export default class ToastModal extends React.PureComponent {
   state = {
     message: '',
@@ -16,11 +18,8 @@ export default class ToastModal extends React.PureComponent {
   show = message => this.setState({ message, visible: true });
   dismiss = () => this.setState({ visible: false });
 
-  componentDidUpdate() {
-    if (this.state.visible === true) {
-      setTimeout(this.dismiss, 1000);
-    };
-  }
+  handleOnShow = () => setTimeout(this.dismiss, __AUTO_DISMISS_TIMEOUT);
+  handleOnTouchStart = () => this.dismiss();
 
   render() {
     const { message, visible } = this.state;
@@ -30,8 +29,9 @@ export default class ToastModal extends React.PureComponent {
         transparent
         animationType='fade'
         visible={ visible }
+        onShow={ this.handleOnShow }
       >
-        <View style={ styles.backdrop }>
+        <View style={ styles.backdrop } onTouchStart={ this.handleOnTouchStart }>
           <View style={ styles.container }>
             <Text>{ message }</Text>
           </View>
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   container: {
     padding: 16,
