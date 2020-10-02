@@ -15,7 +15,8 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.2.tar.gz",
     "react-native-camera": "^3.40.0",
     "react-native-web": "~0.13.12",
-    "expo-camera": "~9.0.0"
+    "expo-camera": "~9.0.0",
+    "expo-av": "~8.6.0"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"
