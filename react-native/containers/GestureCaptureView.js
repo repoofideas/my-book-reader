@@ -61,7 +61,6 @@ export default function App(props) {
       } else {
         console.log('Decrease: ', pixelsFromOriginal);
       }
-      // console.log('tab and drag');
     }
   }
 
