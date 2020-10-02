@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Pressable
@@ -16,7 +16,7 @@ const __SPEED_RATE_PER_PIXAL = 1;
 export default function App(props) {
   const toastRef = React.createRef();
 
-  const [ play, setPlay ] = useState(false);
+  const [ isPlaying, setPlay ] = useState(null);
   const [ lastTapAt, setLastTapAt ] = useState(0);
   const [ startX, setStartX ] = useState(-1);
   const [ startY, setStartY ] = useState(-1);
@@ -67,11 +67,21 @@ export default function App(props) {
   const onPress = event => {
     if (event.nativeEvent.timestamp - lastTapAt < __TAB_DELAY) {
       setLastTapAt(0);
-      setPlay(!play);
-      toastRef.current.show(!play ? 'Stop' : 'Start');
+      setPlay(!isPlaying);
     } else {
       setLastTapAt(event.nativeEvent.timestamp);
     }
+  }
+
+  useEffect(() => {
+    if (isPlaying !== null) {
+      toastRef.current.show(!isPlaying ? 'Pause' : 'Play');
+    }
+    props.handlePlayStatusOnChange(isPlaying);
+  }, [ isPlaying ]);
+
+  const onLongPress = () => {
+    // TODO: rescan the document using camara
   }
 
   return (
@@ -81,6 +91,7 @@ export default function App(props) {
       onTouchEnd={ onTouchEnd }
       onTouchMove={ onTouchMove }
       onPress={ onPress }
+      onLongPress={ onLongPress }
     >
       <ToastModal ref={ toastRef } />
     </Pressable>
