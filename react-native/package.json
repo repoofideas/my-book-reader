@@ -16,7 +16,8 @@
     "react-native-camera": "^3.40.0",
     "react-native-web": "~0.13.12",
     "expo-camera": "~9.0.0",
-    "expo-av": "~8.6.0"
+    "expo-av": "~8.6.0",
+    "firebase": "7.9.0"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"
