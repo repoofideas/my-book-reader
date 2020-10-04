@@ -37,6 +37,10 @@ export default function App(props) {
     if (!isTapAndDrag) {
       if (direction === __VERTICAL_DIRECTION && startY - endY >= __VERTICAL_SWIPE_THRESHOLD) {
         toastRef.current.show('Look up');
+      } else if (direction === __VERTICAL_DIRECTION && endY - startX >= __VERTICAL_SWIPE_THRESHOLD) {
+        toastRef.current.show('Stop');
+        setPlay(false);
+        props.killSpeech();
       } else if (direction === __HORIZONTAL_DIRECTION && endX - startX >= __HORIZONTAL_SWIPE_THRESHOLD) {
         toastRef.current.show('Go Next');
       } else if (direction === __HORIZONTAL_DIRECTION && startX - endX >= __HORIZONTAL_SWIPE_THRESHOLD) {
@@ -56,6 +60,7 @@ export default function App(props) {
     if (isTapAndDrag) {
       let pixelsFromOriginal = Math.sqrt(Math.pow(movingX - startX, 2) + Math.pow(movingY - startY, 2));
 
+      // TODO: pixelsFromOriginal * __SPEED_RATE_PER_PIXAL = change rate
       if (movingX > startX) {
         console.log('Increase: ', pixelsFromOriginal);
       } else {
@@ -68,21 +73,19 @@ export default function App(props) {
     if (event.nativeEvent.timestamp - lastTapAt < __TAB_DELAY) {
       setLastTapAt(0);
       setPlay(!isPlaying);
+      toastRef.current.show(isPlaying ? 'Pause' : 'Play')
     } else {
       setLastTapAt(event.nativeEvent.timestamp);
     }
   }
 
   useEffect(() => {
-    if (isPlaying !== null) {
-      toastRef.current.show(!isPlaying ? 'Pause' : 'Play');
-    }
     props.handlePlayStatusOnChange(isPlaying);
   }, [ isPlaying ]);
 
-  const onLongPress = () => {
-    // TODO: rescan the document using camara
-  }
+  const onLongPress = () => props.getMessage(() => {
+    setPlay(true);
+  });
 
   return (
     <Pressable
