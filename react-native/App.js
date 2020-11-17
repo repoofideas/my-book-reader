@@ -3,15 +3,15 @@ import axios from 'axios';
 
 import { StatusBar } from 'expo-status-bar';
 import { Camera } from 'expo-camera';
-import { Audio } from 'expo-av';
+import * as Speech from 'expo-speech';
 import {
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   ActivityIndicator,
 } from 'react-native';
 
+import LoadingModel from './components/LoadingModel';
 import GestureCaptureView from './containers/GestureCaptureView';
 
 import env from './config/environment';
@@ -35,14 +35,14 @@ function NoPermissionView() {
 }
 
 export default function App() {
+  const loadingRef = React.createRef();
   const camaraRef = React.createRef();
   const [ hasPermission, setHasPermission ] = useState(null);
-  const soundObject = new Audio.Sound();
+  const [ message, setMessage ] = useState(null);
 
   useEffect(() => {
     (async () => {
       try {
-        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
         const { status } = await Camera.requestPermissionsAsync();
         setHasPermission(status === 'granted');
       } catch (error) {
@@ -52,16 +52,25 @@ export default function App() {
   }, []);
 
   const handlePlayStatusOnChange = async isPlaying => {
-    if (isPlaying === null) {
-      await soundObject.loadAsync(require('./assets/Dynamite.mp3'));
-    } else if (isPlaying) {
-      await soundObject.playAsync();
-    } else {
-      await soundObject.pauseAsync();
+    if (isPlaying === null) return;
+    
+    const isSpeaking = await Speech.isSpeakingAsync();
+    console.log(isSpeaking);
+    if (isPlaying && isSpeaking) {
+      await Speech.resume();
+    } else if (isSpeaking) {
+      await Speech.pause();
     }
   }
 
-  const onPress = async () => {
+  const killSpeech = async () => {
+    if (await Speech.isSpeakingAsync()) {
+      await Speech.stop();
+    }
+  }
+
+  const getMessage = async onSucceed => {
+    loadingRef.current.show();
     const image = await camaraRef.current.takePictureAsync({ quality: .75, base64: true });
     try {
       const response = await axios.post(`https://vision.googleapis.com/v1/images:annotate?key=${ env.google_cloud_vision_api_key }`, {
@@ -77,8 +86,12 @@ export default function App() {
       });
 
       const textAnnotations = response.data.responses[0];
-      console.log(textAnnotations.fullTextAnnotation.text);
+      Speech.speak(textAnnotations.fullTextAnnotation.text, { language: 'en' });
+      setMessage(textAnnotations);
+      onSucceed();
+      loadingRef.current.dismiss();
     } catch (error) {
+      loadingRef.current.dismiss();
       alert(error.message);
     }
   }
@@ -94,15 +107,12 @@ export default function App() {
         type={ Camera.Constants.Type.back }
       >
         <GestureCaptureView
+          getMessage={ getMessage }
+          killSpeech={ killSpeech }
           handlePlayStatusOnChange={ handlePlayStatusOnChange }
         />
       </Camera>
-      <TouchableOpacity
-        style={ styles.button }
-        onPress={ onPress }
-      >
-        <Text style={ styles.buttonText }>Submit</Text>
-      </TouchableOpacity>
+      <LoadingModel ref={ loadingRef } />
     </View>
   );
 }
@@ -121,16 +131,6 @@ const styles = StyleSheet.create({
   text: {
     marginBottom: 8
   },
-  button: {
-    marginTop: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 24,
-    backgroundColor: '#61dafb',
-  },
-  buttonText: {
-    color: '#fff'
-  }
 });
 
 //   Object {
