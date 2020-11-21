@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import _ from 'lodash';
 
 import { StatusBar } from 'expo-status-bar';
 import { Camera } from 'expo-camera';
@@ -9,6 +10,7 @@ import {
   Text,
   View,
   ActivityIndicator,
+  Vibration,
 } from 'react-native';
 
 import LoadingModel from './components/LoadingModel';
@@ -38,7 +40,8 @@ export default function App() {
   const loadingRef = React.createRef();
   const camaraRef = React.createRef();
   const [ hasPermission, setHasPermission ] = useState(null);
-  const [ message, setMessage ] = useState(null);
+  const [ texts, setTexts ] = useState(null);
+  const [ readingIndex, setReadingIndex ] = useState(-1);
 
   useEffect(() => {
     (async () => {
@@ -51,11 +54,32 @@ export default function App() {
     })();
   }, []);
 
+  useEffect(() => {
+    if (_.size(texts) > 0) {
+      setReadingIndex(0);
+    }
+  }, [ texts ]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        if (await Speech.isSpeakingAsync()) {
+          await Speech.stop();
+        }
+
+        if (readingIndex !== -1 && _.isInteger(readingIndex)) {
+          await readText();
+        }
+      } catch (error) {
+        alert(error.message)
+      }
+    })();
+  }, [ readingIndex ]);
+
   const handlePlayStatusOnChange = async isPlaying => {
     if (isPlaying === null) return;
     
     const isSpeaking = await Speech.isSpeakingAsync();
-    console.log(isSpeaking);
     if (isPlaying && isSpeaking) {
       await Speech.resume();
     } else if (isSpeaking) {
@@ -63,10 +87,22 @@ export default function App() {
     }
   }
 
-  const killSpeech = async () => {
-    if (await Speech.isSpeakingAsync()) {
-      await Speech.stop();
+  const updateReadingIndex = (reset, unit) => {
+    if (reset) return setReadingIndex(-1);
+    const newIndex = readingIndex + unit;
+    if (newIndex > (_.size(texts) - 1) || newIndex < 0) {
+      Vibration.vibrate();
+    } else {
+      setReadingIndex(newIndex);
     }
+  }
+
+  const readText = async () => {
+    const text = texts[readingIndex];
+    Speech.speak(text, {
+      language: 'en',
+      onDone: () => updateReadingIndex(null, 1),
+    });
   }
 
   const getMessage = async onSucceed => {
@@ -84,12 +120,24 @@ export default function App() {
           }
         ]
       });
-      
+
       loadingRef.current.dismiss();
 
       const textAnnotations = response.data.responses[0];
-      Speech.speak(textAnnotations.fullTextAnnotation.text, { language: 'en' });
-      setMessage(textAnnotations);
+      const texts = [];
+      _.each(_.get(textAnnotations, 'fullTextAnnotation.pages'), page => {
+        _.each(_.get(page, 'blocks'), block => {
+          _.each(_.get(block, 'paragraphs'), paragraph => {
+            let paragraphText = [];
+            _.each(_.get(paragraph, 'words'), word => {
+              paragraphText.push(_.join(_.map(_.get(word, 'symbols'), 'text'), ''));
+            });
+            texts.push(_.join(paragraphText, ' '));
+          });
+        });
+      });
+
+      setTexts(texts);
       onSucceed();
     } catch (error) {
       alert(error.message);
@@ -108,7 +156,7 @@ export default function App() {
       >
         <GestureCaptureView
           getMessage={ getMessage }
-          killSpeech={ killSpeech }
+          updateReadingIndex={ updateReadingIndex }
           handlePlayStatusOnChange={ handlePlayStatusOnChange }
         />
       </Camera>

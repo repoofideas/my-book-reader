@@ -6,7 +6,7 @@ import {
 
 import ToastModal from '../components/ToastModal';
 
-const __TAB_DELAY = 200;
+const __TAB_DELAY = 100;
 const __VERTICAL_SWIPE_THRESHOLD = 250;
 const __HORIZONTAL_SWIPE_THRESHOLD = 170;
 const __VERTICAL_DIRECTION = 'ver';
@@ -21,18 +21,18 @@ export default function App(props) {
   const [ startX, setStartX ] = useState(-1);
   const [ startY, setStartY ] = useState(-1);
   const [ isTapAndDrag, setTapAndDrag ] = useState(false);
-  const [ direction, setDirection ] = useState(null);
 
   const onTouchStart = event => {
     setTapAndDrag(event.nativeEvent.timestamp - lastTapAt < __TAB_DELAY);
     setStartX(event.nativeEvent.locationX);
     setStartY(event.nativeEvent.locationY);
-    setDirection(null);
   }
 
   const onTouchEnd = event => {
     const endX = event.nativeEvent.locationX;
     const endY = event.nativeEvent.locationY;
+
+    const direction = Math.abs(startX - endX) < Math.abs(startY - endY) ? __VERTICAL_DIRECTION : __HORIZONTAL_DIRECTION;
 
     if (!isTapAndDrag) {
       if (direction === __VERTICAL_DIRECTION && startY - endY >= __VERTICAL_SWIPE_THRESHOLD) {
@@ -40,11 +40,13 @@ export default function App(props) {
       } else if (direction === __VERTICAL_DIRECTION && endY - startX >= __VERTICAL_SWIPE_THRESHOLD) {
         toastRef.current.show('Stop');
         setPlay(false);
-        props.killSpeech();
+        props.updateReadingIndex(true);
       } else if (direction === __HORIZONTAL_DIRECTION && endX - startX >= __HORIZONTAL_SWIPE_THRESHOLD) {
         toastRef.current.show('Go Next');
+        props.updateReadingIndex(false, 1);
       } else if (direction === __HORIZONTAL_DIRECTION && startX - endX >= __HORIZONTAL_SWIPE_THRESHOLD) {
         toastRef.current.show('Go Back');
+        props.updateReadingIndex(false, -1);
       }
     }
   }
@@ -52,10 +54,6 @@ export default function App(props) {
   const onTouchMove = event => {
     const movingX = event.nativeEvent.locationX;
     const movingY = event.nativeEvent.locationY;
-
-    if (direction === null) {
-      setDirection(startX !== event.nativeEvent.locationX ? __HORIZONTAL_DIRECTION : __VERTICAL_DIRECTION);
-    }
 
     if (isTapAndDrag) {
       let pixelsFromOriginal = Math.sqrt(Math.pow(movingX - startX, 2) + Math.pow(movingY - startY, 2));
@@ -105,8 +103,6 @@ const styles = StyleSheet.create({
   container: {
     height: '100%',
     width: '100%',
-    borderColor: 'red',
-    borderWidth: 1, 
   }
 });
 

@@ -43,13 +43,15 @@ export default class ToastModal extends React.PureComponent {
 
 const styles = StyleSheet.create({
   backdrop: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'absolute',
+    bottom: 24,
+    alignSelf: 'center',
   },
   container: {
     padding: 16,
-    backgroundColor: '#fffd',
+    backgroundColor: '#0003',
     borderRadius: 16
   }
 });
