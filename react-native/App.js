@@ -84,14 +84,14 @@ export default function App() {
           }
         ]
       });
+      
+      loadingRef.current.dismiss();
 
       const textAnnotations = response.data.responses[0];
       Speech.speak(textAnnotations.fullTextAnnotation.text, { language: 'en' });
       setMessage(textAnnotations);
       onSucceed();
-      loadingRef.current.dismiss();
     } catch (error) {
-      loadingRef.current.dismiss();
       alert(error.message);
     }
   }
