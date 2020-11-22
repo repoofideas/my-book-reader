@@ -6,12 +6,12 @@ import {
 
 import ToastModal from '../components/ToastModal';
 
-const __TAB_DELAY = 100;
+const __TAB_DELAY = 200;
 const __VERTICAL_SWIPE_THRESHOLD = 250;
 const __HORIZONTAL_SWIPE_THRESHOLD = 170;
 const __VERTICAL_DIRECTION = 'ver';
 const __HORIZONTAL_DIRECTION = 'hor';
-const __SPEED_RATE_PER_PIXAL = 1;
+const __SPEED_RATE_PER_PIXAL = 0.002;
 
 export default function App(props) {
   const toastRef = React.createRef();
@@ -43,27 +43,19 @@ export default function App(props) {
         props.updateReadingIndex(true);
       } else if (direction === __HORIZONTAL_DIRECTION && endX - startX >= __HORIZONTAL_SWIPE_THRESHOLD) {
         toastRef.current.show('Go Next');
+        setPlay(true);
         props.updateReadingIndex(false, 1);
       } else if (direction === __HORIZONTAL_DIRECTION && startX - endX >= __HORIZONTAL_SWIPE_THRESHOLD) {
         toastRef.current.show('Go Back');
+        setPlay(true);
         props.updateReadingIndex(false, -1);
       }
-    }
-  }
-
-  const onTouchMove = event => {
-    const movingX = event.nativeEvent.locationX;
-    const movingY = event.nativeEvent.locationY;
-
-    if (isTapAndDrag) {
-      let pixelsFromOriginal = Math.sqrt(Math.pow(movingX - startX, 2) + Math.pow(movingY - startY, 2));
-
-      // TODO: pixelsFromOriginal * __SPEED_RATE_PER_PIXAL = change rate
-      if (movingX > startX) {
-        console.log('Increase: ', pixelsFromOriginal);
-      } else {
-        console.log('Decrease: ', pixelsFromOriginal);
-      }
+    } else if (startX !== endX && startY !== endY) {
+      const pixelsFromOriginal = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+      const unit = pixelsFromOriginal * __SPEED_RATE_PER_PIXAL * (endX > startX ? 1 : -1);
+      props.updateReadingSpeedRate(unit, updatedRate => {
+        toastRef.current.show('Change Reading Speed to: ' + Math.round(updatedRate * 10) / 10);
+      });
     }
   }
 
@@ -90,7 +82,6 @@ export default function App(props) {
       style={ styles.container }
       onTouchStart={ onTouchStart }
       onTouchEnd={ onTouchEnd }
-      onTouchMove={ onTouchMove }
       onPress={ onPress }
       onLongPress={ onLongPress }
     >

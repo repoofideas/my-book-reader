@@ -42,6 +42,7 @@ export default function App() {
   const [ hasPermission, setHasPermission ] = useState(null);
   const [ texts, setTexts ] = useState(null);
   const [ readingIndex, setReadingIndex ] = useState(-1);
+  const [ readingSpeedRate, setReadingSpeedRate ] = useState(1);
 
   useEffect(() => {
     (async () => {
@@ -97,10 +98,19 @@ export default function App() {
     }
   }
 
+  const updateReadingSpeedRate = (unit, cb) => {
+    let updatedRate = readingSpeedRate + unit;
+    if (updatedRate > 1.5) updatedRate = 1.5;
+    if (updatedRate < 0.5) updatedRate = 0.5;
+    setReadingSpeedRate(updatedRate);
+    cb(updatedRate);
+  }
+
   const readText = async () => {
     const text = texts[readingIndex];
     Speech.speak(text, {
       language: 'en',
+      rate: readingSpeedRate,
       onDone: () => updateReadingIndex(null, 1),
     });
   }
@@ -157,6 +167,7 @@ export default function App() {
         <GestureCaptureView
           getMessage={ getMessage }
           updateReadingIndex={ updateReadingIndex }
+          updateReadingSpeedRate={ updateReadingSpeedRate }
           handlePlayStatusOnChange={ handlePlayStatusOnChange }
         />
       </Camera>
