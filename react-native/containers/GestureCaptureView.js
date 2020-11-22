@@ -96,13 +96,3 @@ const styles = StyleSheet.create({
     width: '100%',
   }
 });
-
-// changedTouches - Array of all touch events that have changed since the last event
-// identifier - The ID of the touch
-// locationX - The X position of the touch, relative to the element
-// locationY - The Y position of the touch, relative to the element
-// pageX - The X position of the touch, relative to the root element
-// pageY - The Y position of the touch, relative to the root element
-// target - The node id of the element receiving the touch event
-// timestamp - A time identifier for the touch, useful for velocity calculation
-// touches - Array of all current touches on the screen
