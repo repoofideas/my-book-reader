@@ -1,3 +1,5 @@
+import { Constants } from 'expo';
+
 const environments = {
   staging: {
     google_cloud_vision_api_key: 'AIzaSyBXtcdXRrguVRgFFA9UV8177PEcJw4MYH0',
