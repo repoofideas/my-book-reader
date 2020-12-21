@@ -1,3 +1,15 @@
-### gestured-book-reader
+### Introduction
 
-Globally, it is estimated that at least 2.2 billion people have a vision impairment or blindness, and only about 1.4 million are born blind. This leads to the conclusion that the majority of people with impaired vision will have to learn braille to read, which can be quite challenging. Also, all the books they have collected throughout their lifetime become obsolete. To address these issues, we present a Gestured Book Reader, a software that can read the text from the image, and all the user interaction can be done through the hand gestures captured by the camera. With the recent advancement in mobile phones and OCR(Optical Character Recognition) technology, text recognition with cameras on mobile phones have become widely available. We added features where the user can pause, change the tone, or speed of reading with hand gesture recognition. The goal is to build software that can be used in all mobile platforms where the user can have the printed text read to them naturally without any need for external help or braille.
+Globally, it is estimated that at least 2.2 billion people have some form of visual impairment, and the number is steadily increasing. To address the growing need to access printed text without vision, we present Gestured Book Reader. Our software can read the text from the image, and the interface is optimized for vision-impaired users. By applying computer vision and human-computer interaction technologies such as OCR (Optical Character Recognition) and gesture recognition, our software allows printed text to be read aloud from mobile devices. Users can interact with simple tap or swipe gestures to access features such as changing reading speed, skipping paragraphs, or pause.
+
+# Gestured Book Reader
+
+> This app is workable for both Android and iOS devices, to run this app, please download `Expo Client` on either Google Play or App Store on your devices.
+
+### Steps to run the app
+1. Before running the source code, please make sure your machine have NodeJS version 10 installed, if not, please check [nvm](https://github.com/nvm-sh/nvm).
+2. After the source code is cloned or unzipped to your machine, in terminal, please run `npm install` on the root dir of sourse code.
+3. After the install, you should see dir `node_modules` has been created, then run `npm start`
+    - If any unexpected error occurred, please run `node --version` to make sure you are running on `v10.x.x`.
+4. The terminal should open a webpage for you, make sure on the bottom left your connection type is using `LAN`.
+5. Use your mobile device to scan the QRCode and you are good to go, enjoy the Gestured Book Reader.
