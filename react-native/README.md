@@ -1,7 +1,3 @@
-# Gestured Book Reader
-
-> This app is workable for both Android and iOS devices, to run this app, please download `Expo Client` on either Google Play or App Store on your devices.
-
 ### Steps to run the app
 1. Set up google [cloud vision api](https://cloud.google.com/vision) and copy api key
 2. Create a directory named 'config' and create a environment.js inside the directory as follows:
