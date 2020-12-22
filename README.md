@@ -35,3 +35,6 @@ export default getEnvironment();
     - If any unexpected error occurred, please run `node --version` to make sure you are running on `v10.x.x`.
 6. The terminal should open a webpage for you, make sure on the bottom left your connection type is using `LAN`.
 7. Use your mobile device to scan the QRCode and you are good to go, enjoy the Gestured Book Reader.
+
+### License
+Apache-2.0
